@@ -1,0 +1,47 @@
+.login .login_paper{
+    position: absolute;
+    top:30%;
+    left: 35%;
+    width: 500px;
+    height: 350px;
+}
+.login .MuiTypography-root.connect.MuiTypography-h6{
+    
+    margin-top: 15px;    
+    margin-bottom: 15px;    
+    padding-bottom: 15px;
+    border-bottom: 1px solid gray ;
+
+}
+.login .id_input{
+    position: relative;
+    top: 15px;
+    left: 100px;
+
+}
+.login .pw_input{
+    position: relative;
+    top:35px;
+    left: 100px;
+    width:300px;
+}
+.login .MuiInputBase-input.MuiOutlinedInput-input{
+    width:250px
+}
+.login .buttons{
+    position: relative;
+    top: 65px;
+}
+.login .MuiButtonBase-root.MuiButton-root.MuiButton-outlined.join_button{
+    margin-left: 55px;
+}
+.login .MuiButtonBase-root.MuiButton-root.MuiButton-outlined.login_button{
+
+    margin-left: 100px;
+    
+}
+
+.login .buttons .MuiButton-label{
+    width: 80px;
+    height: 30px;
+}
