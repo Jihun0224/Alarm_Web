@@ -25,7 +25,7 @@
     top: 40px;
     left: 50px;
 }
-.alarm .week .MuiButtonBase-root.MuiButton-root.MuiButton-outlined{
+.alarm .week .MuiButtonBase-root.MuiButton-root.MuiButton-contained{
     width: 50px;
     height: 50px;
     border-radius: 50%;
@@ -74,4 +74,7 @@
 .MuiButtonBase-root.MuiListItem-root.MuiListItem-gutters.MuiListItem-button{
     border: 1px solid gray;
     padding-left: 0px;
+}
+.alarm .button_group .MuiButtonBase-root.MuiButton-root.MuiButton-outlined.add{
+    margin-left: 150px;
 }

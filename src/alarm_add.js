@@ -7,8 +7,12 @@ import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import { FixedSizeList } from 'react-window';
 import PropTypes from 'prop-types';
+import Error from '@material-ui/icons/Error';
+import Check from '@material-ui/icons/Check';
 import Checkbox from '@material-ui/core/Checkbox';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import './alarm.css'
 
 function renderRow(props) {
@@ -17,9 +21,7 @@ function renderRow(props) {
     return (
       <ListItem button style={style} key={index}>
           <ListItemIcon>
-              <Checkbox
-               
-              />
+             
             </ListItemIcon>
         <ListItemText primary={`Item ${index + 1}`} />
       </ListItem>
@@ -31,18 +33,18 @@ function renderRow(props) {
     style: PropTypes.object.isRequired,
   };
 
-class Alarm extends Component {
+class Alarm_Add extends Component {
     constructor(props) {
         super(props);
         this.state = {
           alarm_time:'12:00',
-          mon:'false',
-          tues:'false',
-          wed:'false',
-          thu:'false',
-          fri:'false',
-          sat:'false',
-          sun:'false',
+          mon:false,
+          tues:false,
+          wed:false,
+          thu:false,
+          fri:false,
+          sat:false,
+          sun:false,
 
         };
         this.onChange = this.onChange.bind(this);
@@ -53,11 +55,77 @@ class Alarm extends Component {
         this.fri_onClick = this.fri_onClick .bind(this);
         this.sat_onClick = this.sat_onClick .bind(this);
         this.sun_onClick = this.sun_onClick .bind(this);
+        this.cancel_onClick = this.cancel_onClick .bind(this);
+        this.onSubmit = this.onSubmit .bind(this);
+
+      }
+      onSubmit(e) {
+        e.preventDefault();
+
+        const post = {
+            alarm_time:this.state.alarm_time,
+            mon:this.state.mon,
+            tues:this.state.tues,
+            wed:this.state.wed,
+            thu:this.state.thu,
+            fri:this.state.fri,
+            sat:this.state.sat,
+            sun:this.state.sun,
+        //   nickname: JSON.parse(localStorage.getItem("user")).user_pk,
+        };        
+        //선택된 요일이 없을 때 
+        if (this.state.mon == false && this.state.tues == false && this.state.wed == false 
+            && this.state.thu == false && this.state.fri == false && this.state.sat == false 
+            && this.state.sun == false) {
+          toast.error(
+            <div>
+              <div className="toast">
+                <Error />
+                <p>요일을 선택하세요</p>
+              </div>
+            </div>
+          );
+        } 
+          //post전송
+          fetch("http://localhost:3001/alarm_add", {
+            method: "post",
+            headers: {
+              "content-type": "application/json",
+            },
+            body: JSON.stringify(post),
+          })
+          .then(res => res.json())        
+          .then(res => { 
+            if(res == false){
+              toast.error(
+                <div>
+                  <div className="toast">
+                    <Error />
+                    <p>이미 존재하는 알람입니다.</p>
+                  </div>
+                </div>
+              );
+            }
+            else{
+              
+                toast.success(
+                  <div>
+                    
+                    <div className="toast">
+                    <Check />
+                      <p>알람이 등록되었습니다.</p>
+                    </div>
+                  </div>
+                )
+                this.setState({mon: false,tues: false, wed:false, thu:false, fri: false, sat: false, sun: false, alarm_time:"12:00"})
+
+            }
+           }) 
 
       }
       mon_onClick(e){
 
-        if(this.state.mon===false){
+        if(this.state.mon==false){
             this.setState({mon:true});
 
         }
@@ -68,7 +136,7 @@ class Alarm extends Component {
      }
      tues_onClick(e){
 
-        if(this.state.tues===false){
+        if(this.state.tues==false){
             this.setState({tues:true});
 
         }
@@ -79,7 +147,7 @@ class Alarm extends Component {
      }      
      wed_onClick(e){
 
-        if(this.state.wed===false){
+        if(this.state.wed==false){
             this.setState({wed:true});
 
         }
@@ -90,7 +158,7 @@ class Alarm extends Component {
      }      
      thu_onClick(e){
 
-        if(this.state.thu===false){
+        if(this.state.thu==false){
             this.setState({thu:true});
 
         }
@@ -101,7 +169,7 @@ class Alarm extends Component {
      }     
      fri_onClick(e){
 
-        if(this.state.fri===false){
+        if(this.state.fri==false){
             this.setState({fri:true});
 
         }
@@ -112,7 +180,7 @@ class Alarm extends Component {
      }      
      sat_onClick(e){
 
-        if(this.state.sat===false){
+        if(this.state.sat==false){
             this.setState({sat:true});
 
         }
@@ -123,7 +191,7 @@ class Alarm extends Component {
      }      
      sun_onClick(e){
 
-        if(this.state.sun===false){
+        if(this.state.sun==false){
             this.setState({sun:true});
 
         }
@@ -135,8 +203,11 @@ class Alarm extends Component {
       onChange(e) {
         this.setState({ alarm_time: e.target.value });
       }
+      cancel_onClick(e){
+        this.setState({ mon: false,tues: false, wed:false, thu:false, fri: false, sat: false, sun: false, alarm_time:"12:00"});
+      }
     render(){
-        const {onChange,mon_onClick, tues_onClick, wed_onClick, thu_onClick, fri_onClick, sat_onClick, sun_onClick } = this;
+        const {onChange,mon_onClick, tues_onClick, wed_onClick, thu_onClick, fri_onClick, sat_onClick, sun_onClick,cancel_onClick,onSubmit } = this;
 
         return(
             <div className = "alarm">
@@ -147,32 +218,33 @@ class Alarm extends Component {
                     <Button className="Logout" >
                         Logout
                     </Button>
+                    <form onSubmit={onSubmit}>
                     <div className ="week">
-                        <Button className = "mon" variant="contained" onClick={mon_onClick} color={this.state.mon ? "gray" : "primary"}>
+                        <Button className = "mon" variant="contained" onClick={mon_onClick} color={this.state.mon ? "primary":"gray"}>
                             월
                         </Button>
 
-                        <Button className = "tues" variant="contained" onClick={tues_onClick} color={this.state.tues ? "gray" : "primary"}>
+                        <Button className = "tues" variant="contained" onClick={tues_onClick} color={this.state.tues ? "primary":"gray"}>
                             화
                         </Button>
 
-                        <Button className = "wed" variant="contained" onClick={wed_onClick} color={this.state.wed ? "gray" : "primary"}>
+                        <Button className = "wed" variant="contained" onClick={wed_onClick} color={this.state.wed ? "primary":"gray"}>
                             수
                         </Button>
 
-                        <Button className = "thu" variant="contained" onClick={thu_onClick} color={this.state.thu ? "gray" : "primary"}>
+                        <Button className = "thu" variant="contained" onClick={thu_onClick} color={this.state.thu ? "primary":"gray"}>
                             목
                         </Button>
 
-                        <Button className = "fri" variant="contained" onClick={fri_onClick} color={this.state.fri ? "gray" : "primary"}>
+                        <Button className = "fri" variant="contained" onClick={fri_onClick} color={this.state.fri ? "primary":"gray"}>
                             금
                         </Button>
 
-                        <Button className = "sat" variant="contained" onClick={sat_onClick} color={this.state.sat ? "gray" : "primary"}>
+                        <Button className = "sat" variant="contained" onClick={sat_onClick} color={this.state.sat ? "primary":"gray"}>
                             토
                         </Button>
 
-                        <Button className = "sun" variant="contained" onClick={sun_onClick} color={this.state.sun ? "gray" : "primary"}>
+                        <Button className = "sun" variant="contained" onClick={sun_onClick} color={this.state.sun ? "primary":"gray"}>
                             일
                         </Button>
                     </div>
@@ -188,24 +260,26 @@ class Alarm extends Component {
                         id="time"
                         label="Alarm clock"
                         type="time"
-                        defaultValue="00:00"
+                        value={this.state.alarm_time}
                         className="clock"
                         onChange={onChange}
                         
                         
                         />
                     </div>
+              
                    <div className ="button_group">
-                    <Button className = "add" variant="outlined">
-                            추가                       
+                    <Button className = "add" variant="outlined" color ="primary" type="submit">
+                            저장                     
                     </Button>
-                    <Button className = "add" variant="outlined">
-                            삭제
+                    
+                    <Button className = "delete" variant="outlined" color ="secondary" onClick={cancel_onClick}>
+                            취소
                     </Button>
-                    <Button className = "add" variant="outlined">
-                            수정
-                    </Button>
+                    
                    </div>
+                   </form>
+                   <ToastContainer />
                     <div className ="warning">
                     <Typography className = "warning" variant= "h6" align= "center">
                         경고창
@@ -218,4 +292,4 @@ class Alarm extends Component {
     }
 }
 
-export default Alarm;
+export default Alarm_Add;
