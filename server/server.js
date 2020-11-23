@@ -17,14 +17,83 @@ var connection = mysql.createConnection({
   app.use(express.urlencoded({extended : true}));
   app.use(cors());
 
+  
+  app.use('/alarm_list_count', function (req, res){
 
+    var user_pk = 1;
+    // var user_pk = req.body.user_pk
+    var sql =
+    "SELECT COUNT(user_key) as count FROM alarm WHERE user_key = ?";
+    var params = [user_pk];
+
+    connection.query(sql, params, function (err, rows) {
+        if (err) {
+          console.log(err);
+        }
+         else {
+          console.log("알람 수 전송");
+          res.json(rows);
+        }
+      })
+})
+app.use('/alarm_delete', function (req, res){
+  var alarm_pk = req.body.alarm_key;
+  var sql = 
+  "DELETE FROM alarm WHERE alarm_pk = ?"  
+  var params = [alarm_pk];
+
+  connection.query(sql, params, function (err, rows) {
+      if (err) {
+        console.log(err);
+      }
+       else {
+        console.log(alarm_pk+"알람 삭제");
+      }
+    })
+})
+app.use('/alarm_modify', function (req, res){
+
+  var alarm_pk = req.body.alarm_key;
+  var user_pk = 1; //Test 1
+  var time = req.body.alarm_time;
+  var mon = req.body.mon;
+  var tues = req.body.tues;
+  var wed = req.body.wed;
+  var thu = req.body.thu;
+  var fri = req.body.fri;
+  var sat = req.body.sat;
+  var sun = req.body.sun;
+  var sql = 
+  "UPDATE alarm SET mon = ?, tues = ?, wed = ?, thu = ?, fri = ?, sat = ?, sun = ?, time = ? WHERE alarm_pk = ? AND user_key = ?"  
+  var return_sql = 
+  "SELECT * FROM alarm WHERE alarm_pk = ?"
+  var params = [mon, tues, wed, thu, fri, sat, sun, time, alarm_pk, user_pk];
+
+  connection.query(sql, params, function (err, rows) {
+      if (err) {
+        console.log(err);
+      }
+       else {
+        connection.query(return_sql, alarm_pk, function (err, rows) {
+          if (err) {
+            console.log(err);
+          }
+           else {
+            console.log(alarm_pk+"알람 수정");
+            res.json(rows);
+    
+          }
+        })   
+      }
+    })
+})
 app.use('/alarm_list', function (req, res){
 
-    // var user_pk = req.body.user_pk;
     var user_pk = 1;
+    // var user_pk = req.body.user_pk
 
     var sql =
-    "SELECT * FROM alarm WHERE user_pk = ?";
+    "SELECT alarm_pk, mon , tues, wed , thu , fri , sat , sun , time FROM alarm WHERE user_key = ? ORDER BY alarm_pk";
     var params = [user_pk];
 
     connection.query(sql, params, function (err, rows) {
@@ -38,12 +107,10 @@ app.use('/alarm_list', function (req, res){
       })
 })
 app.post('/alarm_add', function (req, res){
-if(req.body == undefined){
-  console.log("!!!!");
-}
-console.log(req.body)
+
     // var user_pk = req.body.user_pk;
     var user_pk = 1; //Test 1
+    var time = req.body.alarm_time;
     var mon = req.body.mon;
     var tues = req.body.tues;
     var wed = req.body.wed;
@@ -51,7 +118,6 @@ console.log(req.body)
     var fri = req.body.fri;
     var sat = req.body.sat;
     var sun = req.body.sun;
-    var time = req.body.alarm_time;
     var check_sql = 
     "SELECT * FROM alarm WHERE user_key = ? AND mon = ? AND tues = ? AND wed = ? AND thu = ? AND fri = ? AND sat= ? AND sun = ? AND time = ?"
     var sql =

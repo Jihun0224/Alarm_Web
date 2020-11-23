@@ -18,7 +18,6 @@
     position: absolute;
     top: 15px;
     left: 810px;
-
 }
 .alarm .week{
     position: relative;
@@ -47,24 +46,15 @@
 .alarm .button_group{
     position: relative;
     top: 140px;
-    left: 20px;
+    left: 150px;
 }
 
-.alarm .button_group .MuiButtonBase-root.MuiButton-root.MuiButton-outlined{
-    margin-left: 30px;
+.alarm .button_group .MuiButtonBase-root.MuiButton-root.MuiButton-outlined.delete.MuiButton-outlinedSecondary{
+    margin-left: 70px;
 }
 .alarm .button_group .MuiButton-label{
     width: 120px;
     height: 35px;
-}
-.alarm .alarm_list{
-    position: absolute;
-    left: 650px;
-    top: 65px;
-}
-.alarm .warning{
-    position: relative;
-    top:85px;
 }
 .alarm .MuiTypography-root.warning.MuiTypography-h6{
     padding-top: 10px;    
@@ -72,9 +62,34 @@
     border-top: 1px solid gray ;
 }
 .MuiButtonBase-root.MuiListItem-root.MuiListItem-gutters.MuiListItem-button{
-    border: 1px solid gray;
+    border:2px solid gray;
     padding-left: 0px;
 }
 .alarm .button_group .MuiButtonBase-root.MuiButton-root.MuiButton-outlined.add{
     margin-left: 150px;
+}
+
+.alarm .alarm_list{
+    position: absolute;
+    left: 650px;
+    top: 120px;
+}
+.alarm .alarm_list .add_button{
+    border: 2px solid gray;
+    height: 44px;
+    width: 230px;
+    position: absolute;
+    top: -58px;
+    left: 0px;
+}
+.alarm .alarm_list .add_button .MuiButtonBase-root.MuiIconButton-root.MuiIconButton-colorPrimary{
+    position: relative;
+    top: 10px;
+    left: 85px;
+    padding-top: 0px;
+    padding-bottom: 0px;
+}
+.alarm .alarm_list .list{
+    position: relative;
+    top: -12px;
 }

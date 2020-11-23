@@ -3,35 +3,15 @@ import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemText from '@material-ui/core/ListItemText';
-import { FixedSizeList } from 'react-window';
-import PropTypes from 'prop-types';
 import Error from '@material-ui/icons/Error';
 import Check from '@material-ui/icons/Check';
-import Checkbox from '@material-ui/core/Checkbox';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import './alarm.css'
+import ArrowBackIcon from '@material-ui/icons/ArrowBack';
+import IconButton from '@material-ui/core/IconButton';
+import './alarm_add.css'
 
-function renderRow(props) {
-    const { index, style } = props;
-  
-    return (
-      <ListItem button style={style} key={index}>
-          <ListItemIcon>
-             
-            </ListItemIcon>
-        <ListItemText primary={`Item ${index + 1}`} />
-      </ListItem>
-    );
-  }
-  
-  renderRow.propTypes = {
-    index: PropTypes.number.isRequired,
-    style: PropTypes.object.isRequired,
-  };
+
 
 class Alarm_Add extends Component {
     constructor(props) {
@@ -48,15 +28,15 @@ class Alarm_Add extends Component {
 
         };
         this.onChange = this.onChange.bind(this);
-        this.mon_onClick = this.mon_onClick .bind(this);
-        this.tues_onClick = this.tues_onClick .bind(this);
-        this.wed_onClick = this.wed_onClick .bind(this);
-        this.thu_onClick = this.thu_onClick .bind(this);
-        this.fri_onClick = this.fri_onClick .bind(this);
-        this.sat_onClick = this.sat_onClick .bind(this);
-        this.sun_onClick = this.sun_onClick .bind(this);
-        this.cancel_onClick = this.cancel_onClick .bind(this);
-        this.onSubmit = this.onSubmit .bind(this);
+        this.mon_onClick = this.mon_onClick.bind(this);
+        this.tues_onClick = this.tues_onClick.bind(this);
+        this.wed_onClick = this.wed_onClick.bind(this);
+        this.thu_onClick = this.thu_onClick.bind(this);
+        this.fri_onClick = this.fri_onClick.bind(this);
+        this.sat_onClick = this.sat_onClick.bind(this);
+        this.sun_onClick = this.sun_onClick.bind(this);
+        this.goback = this.goback.bind(this);
+        this.onSubmit = this.onSubmit.bind(this);
 
       }
       onSubmit(e) {
@@ -71,7 +51,7 @@ class Alarm_Add extends Component {
             fri:this.state.fri,
             sat:this.state.sat,
             sun:this.state.sun,
-        //   nickname: JSON.parse(localStorage.getItem("user")).user_pk,
+        //  user_key: JSON.parse(localStorage.getItem("user")).user_pk,
         };        
         //선택된 요일이 없을 때 
         if (this.state.mon == false && this.state.tues == false && this.state.wed == false 
@@ -86,6 +66,9 @@ class Alarm_Add extends Component {
             </div>
           );
         } 
+        else{
+
+        
           //post전송
           fetch("http://localhost:3001/alarm_add", {
             method: "post",
@@ -117,11 +100,12 @@ class Alarm_Add extends Component {
                     </div>
                   </div>
                 )
-                this.setState({mon: false,tues: false, wed:false, thu:false, fri: false, sat: false, sun: false, alarm_time:"12:00"})
+                                
+                  this.props.history.goBack();
 
             }
            }) 
-
+          }
       }
       mon_onClick(e){
 
@@ -203,14 +187,15 @@ class Alarm_Add extends Component {
       onChange(e) {
         this.setState({ alarm_time: e.target.value });
       }
-      cancel_onClick(e){
-        this.setState({ mon: false,tues: false, wed:false, thu:false, fri: false, sat: false, sun: false, alarm_time:"12:00"});
+      goback(e){
+        this.props.history.goBack();
+        
       }
     render(){
-        const {onChange,mon_onClick, tues_onClick, wed_onClick, thu_onClick, fri_onClick, sat_onClick, sun_onClick,cancel_onClick,onSubmit } = this;
+        const {onChange,mon_onClick, tues_onClick, wed_onClick, thu_onClick, fri_onClick, sat_onClick, sun_onClick,goback,onSubmit } = this;
 
         return(
-            <div className = "alarm">
+            <div className = "alarm_add">
                 <Paper className = "alarm_paper" elevation={3}>
                 <Typography className = "alarm_title" variant= "h6" align= "left">
                         Alarm
@@ -218,6 +203,10 @@ class Alarm_Add extends Component {
                     <Button className="Logout" >
                         Logout
                     </Button>
+                    <div>
+                      
+                    </div>
+
                     <form onSubmit={onSubmit}>
                     <div className ="week">
                         <Button className = "mon" variant="contained" onClick={mon_onClick} color={this.state.mon ? "primary":"gray"}>
@@ -249,12 +238,6 @@ class Alarm_Add extends Component {
                         </Button>
                     </div>
 
-                    <div className="alarm_list">
-                    <FixedSizeList height={330} width={250} itemSize={46} itemCount={50}>
-                   {renderRow}
-                    </FixedSizeList>
-                    </div>
-
                     <div className ="clock">
                         <TextField
                         id="time"
@@ -273,18 +256,14 @@ class Alarm_Add extends Component {
                             저장                     
                     </Button>
                     
-                    <Button className = "delete" variant="outlined" color ="secondary" onClick={cancel_onClick}>
+                    <Button className = "delete" variant="outlined" color ="secondary" onClick={goback}>
                             취소
                     </Button>
                     
                    </div>
                    </form>
                    <ToastContainer />
-                    <div className ="warning">
-                    <Typography className = "warning" variant= "h6" align= "center">
-                        경고창
-                    </Typography>
-                    </div>
+                
                 </Paper>
             </div>
 

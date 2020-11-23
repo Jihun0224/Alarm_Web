@@ -1,0 +1,63 @@
+.alarm_add .alarm_paper{
+    position: absolute;
+    top:20%;
+    left: 20%;
+    width: 900px;
+    height: 450px;
+}
+.alarm_add .MuiTypography-root.alarm_title.MuiTypography-h6{
+    
+    margin-top: 15px;    
+    margin-bottom: 15px;    
+    padding-bottom: 15px;
+    padding-left: 15px;
+    border-bottom: 1px solid gray ;
+
+}
+.alarm_add .Logout{
+    position: absolute;
+    top: 15px;
+    left: 810px;
+
+}
+.alarm_add .week{
+    position: relative;
+    top: 40px;
+    left: 130px;
+}
+.alarm_add .week .MuiButtonBase-root.MuiButton-root.MuiButton-contained{
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    margin-left: 20px;
+}
+.alarm_add .clock{
+    position: relative;
+    top:40px;
+    left: 170px;
+}
+.alarm_add .MuiInputBase-input.MuiInput-input{
+    font-size: 20px;
+    text-align:center;
+}
+.alarm_add .MuiFormControl-root.MuiTextField-root.clock{
+    width: 240px;
+}
+
+.alarm_add .button_group{
+    position: relative;
+    top: 140px;
+    left: 20px;
+}
+
+.alarm_add .button_group .MuiButtonBase-root.MuiButton-root.MuiButton-outlined{
+    margin-left: 250px;
+}
+.alarm_add .button_group .MuiButton-label{
+    width: 140px;
+    height: 45px;
+}
+
+.alarm_add .button_group .MuiButtonBase-root.MuiButton-root.MuiButton-outlined.add{
+    margin-left: 150px;
+}
