@@ -11,7 +11,36 @@ import Iconbutton from '@material-ui/core/Iconbutton';
 import { Link, Router } from "react-router-dom";
 import './alarm.css'
 import Check from '@material-ui/icons/Check';
+import Error from '@material-ui/icons/Error';
 import { ToastContainer, toast } from "react-toastify";
+
+function alarm_print(props){
+    var alarm1 = "";
+    if(props.mon == true){
+        alarm1 = "월 "
+    }
+    if(props.tues == true){
+        alarm1 = alarm1 + "화 ";
+    }if(props.wed == true){
+        alarm1 = alarm1 + "수 ";
+    }if(props.thu == true){
+        alarm1 = alarm1 + "목 ";
+    }if(props.fri == true){
+        alarm1 = alarm1 + "금 ";
+    }if(props.sat == true){
+        alarm1 = alarm1 + "토 ";
+    }
+    if(props.sun == true){
+        alarm1 = alarm1 + "일";
+    }
+    return(
+        
+        <ListItemText>
+            {alarm1}  ({props.time})
+        </ListItemText>
+        
+    )
+}
 
 class Alarm extends Component {
     constructor(props) {
@@ -31,15 +60,16 @@ class Alarm extends Component {
 
         };
         this.onChange = this.onChange.bind(this);
-        this.mon_onClick = this.mon_onClick .bind(this);
-        this.tues_onClick = this.tues_onClick .bind(this);
-        this.wed_onClick = this.wed_onClick .bind(this);
-        this.thu_onClick = this.thu_onClick .bind(this);
-        this.fri_onClick = this.fri_onClick .bind(this);
-        this.sat_onClick = this.sat_onClick .bind(this);
-        this.sun_onClick = this.sun_onClick .bind(this);
-        this.modify_onClick = this.modify_onClick .bind(this);
-        this.delete_onClick = this.delete_onClick .bind(this);
+        this.mon_onClick = this.mon_onClick.bind(this);
+        this.tues_onClick = this.tues_onClick.bind(this);
+        this.wed_onClick = this.wed_onClick.bind(this);
+        this.thu_onClick = this.thu_onClick.bind(this);
+        this.fri_onClick = this.fri_onClick.bind(this);
+        this.sat_onClick = this.sat_onClick.bind(this);
+        this.sun_onClick = this.sun_onClick.bind(this);
+        this.modify_onClick = this.modify_onClick.bind(this);
+        this.delete_onClick = this.delete_onClick.bind(this);
+        this.alarm_onClick = this.alarm_onClick.bind(this);
       }
       mon_onClick(e){
 
@@ -121,6 +151,31 @@ class Alarm extends Component {
       onChange(e) {
         this.setState({ alarm_time: e.target.value });
       }
+
+      alarm_onClick(e){
+        
+        console.log(e.currentTarget.dataset.alarm_pk);
+        const post ={
+            alarm_pk : e.currentTarget.dataset.alarm_pk,
+        }
+        fetch("http://localhost:3001/current_alarm", {
+            method: "post",
+            headers: {
+              "content-type": "application/json",
+            },
+            body: JSON.stringify(post),
+          })
+          .then(res => res.json())
+          .then(res => {
+              this.setState({mon:res[0].mon, tues:res[0].tues,
+                 wed:res[0].wed, thu:res[0].thu, fri:res[0].fri, sat:res[0].sat, 
+                 sun:res[0].sun, alarm_time:res[0].time, alarm_key:res[0].alarm_pk})
+          })
+        
+        
+
+           
+      }
     modify_onClick(e){
         const post={
             alarm_key : this.state.alarm_key,
@@ -131,8 +186,7 @@ class Alarm extends Component {
             thu:this.state.thu,
             fri:this.state.fri,
             sat:this.state.sat,
-            sun:this.state.sun,
-            
+            sun:this.state.sun,          
         }
         fetch("http://localhost:3001/alarm_modify", {
             method: "post",
@@ -142,23 +196,34 @@ class Alarm extends Component {
             body: JSON.stringify(post),
         })
         .then(res => res.json())
+      
         .then(res => { 
-            this.setState({alarm_lists:res, mon:res[0].mon, tues:res[0].tues,
-               wed:res[0].wed, thu:res[0].thu, fri:res[0].fri, sat:res[0].sat, 
-               sun:res[0].sun, alarm_time:res[0].time, alarm_key:res[0].alarm_pk})
-        })
-        .then(
-            toast.success(
+            if(res == false){
+              toast.error(
                 <div>
-                  
                   <div className="toast">
-                  <Check />
-                    <p>알람이 수정되었습니다.</p>
+                    <Error />
+                    <p>이미 존재하는 알람입니다.</p>
                   </div>
                 </div>
-              )
-        )
-    }
+              );
+            }
+            else{
+              
+                toast.success(
+                  <div>
+                    <div className="toast">
+                    <Check />
+                      <p>알람이 수정되었습니다.</p>
+                    </div>
+                  </div>
+                )                          
+                window.location.reload();
+            }
+           })
+         } 
+          
+    
     
     delete_onClick(e){
         const post={
@@ -171,7 +236,8 @@ class Alarm extends Component {
             },
             body: JSON.stringify(post),
         })
-        document.location.href = "/alarm"
+
+        window.location.reload();
     }
     componentWillMount(){
 
@@ -179,6 +245,7 @@ class Alarm extends Component {
             user_key : 1,
         //  user_key: JSON.parse(localStorage.getItem("user")).user_pk,
     }
+
         fetch("http://localhost:3001/alarm_list_count", {
             method: "post",
             headers: {
@@ -200,13 +267,13 @@ class Alarm extends Component {
                   })
                   .then(res => res.json())
                   .then(res => {
-                      this.setState({mon:res[0].mon, tues:res[0].tues,
+                      this.setState({alarm_lists:res, mon:res[0].mon, tues:res[0].tues,
                          wed:res[0].wed, thu:res[0].thu, fri:res[0].fri, sat:res[0].sat, 
                          sun:res[0].sun, alarm_time:res[0].time, alarm_key:res[0].alarm_pk})
                   })
                 }
                 else{
-                    //아무것도 없는 초기때 add 로 가도록
+                    document.location.href = "/alarm/add"
                 }
           });
 
@@ -216,19 +283,20 @@ class Alarm extends Component {
       }
 
     render(){
-        const {delete_onClick, modify_onClick, onChange,mon_onClick, tues_onClick, wed_onClick, thu_onClick, fri_onClick, sat_onClick, sun_onClick } = this;
+        const {alarm_onClick, delete_onClick, modify_onClick, onChange,mon_onClick, tues_onClick, wed_onClick, thu_onClick, fri_onClick, sat_onClick, sun_onClick } = this;
 
         return(
             <div className = "alarm">
                 <Paper className = "alarm_paper" elevation={3}>
-                <Typography className = "alarm_title" variant= "h6" align= "left">
-                        Alarm
+                    <Typography className = "alarm_title" variant= "h6" align= "left">
+                            Alarm
                     </Typography>
+
                     <Button className="Logout" >
                         Logout
                     </Button>
-                   
-                    <div className ="week">
+
+                    <span className ="week">
                         <Button className = "mon" variant="contained" onClick={mon_onClick} color={this.state.mon == false ? "gray" : "primary"}>
                             월
                         </Button>
@@ -256,27 +324,28 @@ class Alarm extends Component {
                         <Button className = "sun" variant="contained" onClick={sun_onClick} color={this.state.sun== false ? "gray" : "primary"}>
                             일
                         </Button>
+                    </span>
+
+
+                    <div className="alarm_list">
+                        <div className ="add_button">
+                        <Iconbutton color="primary" variant="contained">
+                            <Link to = "./alarm/add"><AddIcon/></Link>
+                        </Iconbutton>
+                    </div>
+                        <List className = "list">
+                        {this.state.alarm_lists.map((alarm) => (
+                            <Button key ={alarm.alarm_pk} data-alarm_pk={alarm.alarm_pk} onClick ={alarm_onClick}>
+                        <ListItem key={alarm.alarm_pk}>
+                            {alarm_print(alarm)}
+                        </ListItem>    
+                        </Button>
+                        ))}      
+                        </List>
+                        
                     </div>
 
-
-                <div className="alarm_list">
-                    <div className ="add_button">
-                    <Iconbutton color="primary" variant="contained">
-                        <Link to = "./alarm/add"><AddIcon/></Link>
-                    </Iconbutton>
-                   </div>
-                    {/* <List>
-                    {this.state.alarm_lists.map((alarm_list) => (
-
-                    <ListItem button style={true} key={alarm_list.alarm_pk}>
-                    <ListItemText primary={`${alarm_list.alarm_time}`} />
-                    </ListItem>    
-                    ))}      
-                    </List> */}
-                         
-                </div>
-
-                    <div className ="clock">
+                    <span className ="clock">
                         <TextField
                         id="time"
                         label="Alarm clock"
@@ -287,8 +356,9 @@ class Alarm extends Component {
                         
                         
                         />
-                    </div>
-                   <div className ="button_group">
+                    </span>
+
+                   <span className ="button_group">
                 
                     <Button className = "modify" variant="outlined" color="primary" onClick={modify_onClick}>
                             수정
@@ -296,9 +366,10 @@ class Alarm extends Component {
                     <Button className = "delete" variant="outlined" color="secondary" onClick={delete_onClick}>
                             삭제
                     </Button>
-                   </div>
+                   </span>
+
                    <ToastContainer />
-                    </Paper>
+                </Paper>
             </div>
 
         )

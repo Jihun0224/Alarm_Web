@@ -65,27 +65,38 @@ app.use('/alarm_modify', function (req, res){
   var sun = req.body.sun;
   var sql = 
   "UPDATE alarm SET mon = ?, tues = ?, wed = ?, thu = ?, fri = ?, sat = ?, sun = ?, time = ? WHERE alarm_pk = ? AND user_key = ?"  
-  var return_sql = 
-  "SELECT * FROM alarm WHERE alarm_pk = ?"
+  var check_sql = 
+    "SELECT * FROM alarm WHERE user_key = ? AND mon = ? AND tues = ? AND wed = ? AND thu = ? AND fri = ? AND sat= ? AND sun = ? AND time = ?"
+  var check_params = [user_pk,mon, tues, wed, thu, fri, sat, sun, time ]
   var params = [mon, tues, wed, thu, fri, sat, sun, time, alarm_pk, user_pk];
 
-  connection.query(sql, params, function (err, rows) {
-      if (err) {
-        console.log(err);
+  connection.query(check_sql, check_params, function (err, check_rows) {
+    
+    if (err) {
+      console.log(err);
+    }else{
+    
+      if(check_rows[0] != undefined){
+        if (err) {
+          console.log(err);
+        }else {
+          console.log("알람 존재");
+          res.json(false);
+        }
       }
-       else {
-        connection.query(return_sql, alarm_pk, function (err, rows) {
+      else {
+        connection.query(sql, params, function (err, rows) {
           if (err) {
             console.log(err);
+          }else {
+            console.log("알람 수정 성공");
+            res.json(true);
           }
-           else {
-            console.log(alarm_pk+"알람 수정");
-            res.json(rows);
-    
-          }
-        })   
+        })
       }
-    })
+}
+})
+  
 })
 app.use('/alarm_list', function (req, res){
 
@@ -93,7 +104,7 @@ app.use('/alarm_list', function (req, res){
     // var user_pk = req.body.user_pk
 
     var sql =
-    "SELECT alarm_pk, mon , tues, wed , thu , fri , sat , sun , time FROM alarm WHERE user_key = ? ORDER BY alarm_pk";
+    "SELECT alarm_pk, mon , tues, wed , thu , fri , sat , sun , SUBSTR(time,1,5) as time FROM alarm WHERE user_key = ? ORDER BY alarm_pk";
     var params = [user_pk];
 
     connection.query(sql, params, function (err, rows) {
@@ -105,6 +116,24 @@ app.use('/alarm_list', function (req, res){
           res.json(rows);
         }
       })
+})
+app.post('/current_alarm', function(req,res){
+
+  var alarm_pk = req.body.alarm_pk;
+  var sql = 
+  "SELECT alarm_pk, mon , tues, wed , thu , fri , sat , sun , SUBSTR(time,1,5) as time FROM alarm WHERE alarm_pk = ?"
+  var params = [alarm_pk]
+  connection.query(sql, params, function (err, rows) {
+    if (err) {
+      console.log(err);
+    }
+     else {
+      console.log(alarm_pk+"현재 알람 전송");
+      console.log(rows);
+      res.json(rows);
+    }
+  })
+
 })
 app.post('/alarm_add', function (req, res){
 

@@ -4,7 +4,6 @@ import Typography from '@material-ui/core/Typography';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import Helmet from 'react-helmet';
-import Join from './join';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
@@ -117,7 +116,7 @@ class Home extends Component {
 
                     <div className = "buttons">
                     <Button className="login_button" variant="outlined" >Login</Button>
-                    <Join/>
+                  
                     
                     <Button className="join_button" variant="outlined" onClick={this.handleopen}>Join</Button>
                     
