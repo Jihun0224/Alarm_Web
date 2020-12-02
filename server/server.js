@@ -13,18 +13,71 @@ var connection = mysql.createConnection({
     database: "alarm",
   });
   connection.connect();
+  
   app.use(express.json())
   app.use(express.urlencoded({extended : true}));
   app.use(cors());
 
-  
-  app.use('/alarm_list_count', function (req, res){
+  app.post('/log',function(req,res){
+    console.log(req.body);
+    var id = req.body.id;
+    var pw = req.body.pw;
+    connection.query('INSERT INTO user (user_id, user_pw) VALUES(?, ?)',[id,pw],function(err,rows){
+      if (err) {
+        console.log(err);
+      }else{
+        console.log('완료');
+      }
+        
+    })
+})
 
-    var user_pk = 1;
-    // var user_pk = req.body.user_pk
+app.post('/idcheck',function(req,res){
+    var id = req.body.id;
+    connection.query('select user_id from user where user_id=?',[id],function(err,rows){
+      if (err) {
+        console.log(err);
+      }else{
+        res.json(rows);
+
+      }
+            
+    })
+})
+
+app.post('/login',function(req,res){
+    var id = req.body.id;
+    var pw = req.body.pw;
+    connection.query('select user_pk,user_id,user_pw from user where user_id=?',[id],function(err,rows){
+      if (err) {
+        console.log(err);
+      }else{
+        var admin = new Object();
+        admin.key = rows[0].user_pk;
+        admin.id = rows[0].user_id;
+        admin.boolean = false;
+        if(rows[0]===undefined){ //쿼리문 항목안나오면
+            res.send(admin);
+            console.log("안나옴");
+            
+        }else if(rows[0].user_pw===pw){ //일치할떄
+            admin.boolean = true;
+            console.log(admin);
+            res.send(admin);
+            
+        }else{                        //쿼리 비번이랑 받아온 비번이랑 안맞을떄
+            res.send(admin);   
+        }
+      }             
+    })
+})
+  
+  app.post('/alarm_list_count', function (req, res){
+
+    var user_key = req.body.user_key
     var sql =
     "SELECT COUNT(user_key) as count FROM alarm WHERE user_key = ?";
-    var params = [user_pk];
+    var params = [user_key];
 
     connection.query(sql, params, function (err, rows) {
         if (err) {
@@ -36,7 +89,7 @@ var connection = mysql.createConnection({
         }
       })
 })
-app.use('/alarm_delete', function (req, res){
+app.post('/alarm_delete', function (req, res){
   var alarm_pk = req.body.alarm_key;
   var sql = 
   "DELETE FROM alarm WHERE alarm_pk = ?"  
@@ -51,10 +104,10 @@ app.use('/alarm_delete', function (req, res){
       }
     })
 })
-app.use('/alarm_modify', function (req, res){
+app.post('/alarm_modify', function (req, res){
 
   var alarm_pk = req.body.alarm_key;
-  var user_pk = 1; //Test 1
+  var user_key = req.body.user_key
   var time = req.body.alarm_time;
   var mon = req.body.mon;
   var tues = req.body.tues;
@@ -66,9 +119,9 @@ app.use('/alarm_modify', function (req, res){
   var sql = 
   "UPDATE alarm SET mon = ?, tues = ?, wed = ?, thu = ?, fri = ?, sat = ?, sun = ?, time = ? WHERE alarm_pk = ? AND user_key = ?"  
   var check_sql = 
-    "SELECT * FROM alarm WHERE user_key = ? AND mon = ? AND tues = ? AND wed = ? AND thu = ? AND fri = ? AND sat= ? AND sun = ? AND time = ?"
-  var check_params = [user_pk,mon, tues, wed, thu, fri, sat, sun, time ]
-  var params = [mon, tues, wed, thu, fri, sat, sun, time, alarm_pk, user_pk];
+  "SELECT * FROM alarm WHERE user_key = ? AND mon = ? AND tues = ? AND wed = ? AND thu = ? AND fri = ? AND sat= ? AND sun = ? AND time = ?"
+  var check_params = [user_key,mon, tues, wed, thu, fri, sat, sun, time ]
+  var params = [mon, tues, wed, thu, fri, sat, sun, time, alarm_pk, user_key];
 
   connection.query(check_sql, check_params, function (err, check_rows) {
     
@@ -98,14 +151,13 @@ app.use('/alarm_modify', function (req, res){
 })
   
 })
-app.use('/alarm_list', function (req, res){
-
-    var user_pk = 1;
-    // var user_pk = req.body.user_pk
+app.post('/alarm_list', function (req, res){
+  
+    var user_key = req.body.user_key
 
     var sql =
     "SELECT alarm_pk, mon , tues, wed , thu , fri , sat , sun , SUBSTR(time,1,5) as time FROM alarm WHERE user_key = ? ORDER BY alarm_pk";
-    var params = [user_pk];
+    var params = [user_key];
 
     connection.query(sql, params, function (err, rows) {
         if (err) {
@@ -133,12 +185,10 @@ app.post('/current_alarm', function(req,res){
       res.json(rows);
     }
   })
-
 })
 app.post('/alarm_add', function (req, res){
 
-    // var user_pk = req.body.user_pk;
-    var user_pk = 1; //Test 1
+    var user_key = req.body.user_key;
     var time = req.body.alarm_time;
     var mon = req.body.mon;
     var tues = req.body.tues;
@@ -151,7 +201,7 @@ app.post('/alarm_add', function (req, res){
     "SELECT * FROM alarm WHERE user_key = ? AND mon = ? AND tues = ? AND wed = ? AND thu = ? AND fri = ? AND sat= ? AND sun = ? AND time = ?"
     var sql =
     "INSERT INTO alarm (user_key, alarm_pk, mon, tues, wed, thu, fri, sat, sun, time) VALUES(?,DEFAULT,?,?,?,?,?,?,?,?)"
-    var params = [user_pk, mon, tues, wed, thu, fri, sat, sun, time];
+    var params = [user_key, mon, tues, wed, thu, fri, sat, sun, time];
     
     connection.query(check_sql, params, function (err, check_rows) {
     
@@ -181,7 +231,48 @@ app.post('/alarm_add', function (req, res){
     }
   }
   })
-    
 })
+app.post('/ringmybell', function(req,res){
+  var user_pk = req.body.user_key;
+  var date = req.body.date;
+  var day = req.body.day;
 
+  connection.query('select * from alarm where user_key=? AND time=?',[user_pk, date],function(err,rows){
+      if(err){
+        console.log(err);
+      }
+      else{
+        
+      }
+      if(rows[0] != undefined){
+      if(rows[0].mon == 1 && day == "Mon"){
+          res.send(true)
+      }
+      else if(rows[0].tues == 1 && day =="Tue"){
+          res.send(true)
+      }
+      else if(rows[0].wed == 1 && day =="Wed"){
+          res.send(true)
+      }
+      else if(rows[0].thu == 1 && day =="Thu"){
+          res.send(true)
+      }
+      else if(rows[0].fri == 1 && day =="Fri"){
+          res.send(true)
+      }
+      else if(rows[0].sat == 1 && day =="Sat"){
+          res.send(true)
+      }
+      else if(rows[0].sun == 1 && day =="Sun"){
+          res.send(true)
+      }
+      else{
+          res.send(false)
+      }
+                            }
+      else{
+          res.send(false)
+      }
+  })
+})
 http.listen(port, () => console.log(`Example app listening on port ${port}!`))

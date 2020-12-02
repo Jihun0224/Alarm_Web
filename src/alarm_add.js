@@ -35,7 +35,7 @@ class Alarm_Add extends Component {
         this.sun_onClick = this.sun_onClick.bind(this);
         this.goback = this.goback.bind(this);
         this.onSubmit = this.onSubmit.bind(this);
-
+        this.logout = this.logout.bind(this);
       }
       onSubmit(e) {
         e.preventDefault();
@@ -49,7 +49,7 @@ class Alarm_Add extends Component {
             fri:this.state.fri,
             sat:this.state.sat,
             sun:this.state.sun,
-        //  user_key: JSON.parse(localStorage.getItem("user")).user_pk,
+            user_key: JSON.parse(localStorage.getItem("user")).key,
         };        
         //선택된 요일이 없을 때 
         if (this.state.mon == false && this.state.tues == false && this.state.wed == false 
@@ -65,9 +65,6 @@ class Alarm_Add extends Component {
           );
         } 
         else{
-
-        
-          //post전송
           fetch("http://localhost:3001/alarm_add", {
             method: "post",
             headers: {
@@ -189,8 +186,12 @@ class Alarm_Add extends Component {
         this.props.history.goBack();
         
       }
+
+      logout(){
+        localStorage.clear();
+      }
     render(){
-        const {onChange,mon_onClick, tues_onClick, wed_onClick, thu_onClick, fri_onClick, sat_onClick, sun_onClick,goback,onSubmit } = this;
+        const {onChange,mon_onClick, tues_onClick, wed_onClick, thu_onClick, fri_onClick, sat_onClick, sun_onClick,goback,onSubmit,logout } = this;
 
         return(
             <div className = "alarm_add">
@@ -198,7 +199,7 @@ class Alarm_Add extends Component {
                 <Typography className = "alarm_title" variant= "h6" align= "left">
                         Alarm
                     </Typography>
-                    <Button className="Logout" >
+                    <Button className="Logout"  href="/" onClick={logout}>
                         Logout
                     </Button>
                     <div>

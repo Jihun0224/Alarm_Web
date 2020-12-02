@@ -1,0 +1,54 @@
+.join{
+    text-emphasis-color: teal;
+    font-display: yellow;
+}
+
+.join .join_backgroud{
+    position: absolute;
+    top:15%;
+    left: 35%;
+    width: 500px;
+    height: 500px;
+}
+
+.join .join_id{
+    position: relative;
+    top: 15px;
+    left: 100px;
+    width: 300px;
+}
+
+.join .join_pw{
+    position: relative;
+    top:35px;
+    left: 100px;
+    width:300px;
+}
+
+.join .join_pw_confirm{
+    position: relative;
+    top:55px;
+    left: 100px;
+    width:300px;
+    
+}
+
+.join .join_cancel{
+    position: relative;
+    top:75px;
+    left: 100px;
+    width: 150px;
+    height: 50px;
+    background-color: black;
+    color: white;
+}
+
+.join .join_join{
+    position: relative;
+    top:75px;
+    left: 102px;
+    width: 150px;
+    height: 50px;
+    background-color: black;
+    color: white;
+}

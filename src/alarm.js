@@ -8,11 +8,14 @@ import ListItemText from '@material-ui/core/ListItemText';
 import List from '@material-ui/core/List';
 import AddIcon from '@material-ui/icons/Add';
 import Iconbutton from '@material-ui/core/Iconbutton';
-import { Link, Router } from "react-router-dom";
-import './alarm.css'
+import { Link } from "react-router-dom";
+import './alarm.css';
 import Check from '@material-ui/icons/Check';
 import Error from '@material-ui/icons/Error';
 import { ToastContainer, toast } from "react-toastify";
+import moment from 'moment';
+
+
 
 function alarm_print(props){
     var alarm1 = "";
@@ -44,7 +47,7 @@ function alarm_print(props){
 
 class Alarm extends Component {
     constructor(props) {
-        super(props);
+        super(props); 
         this.state = {
           alarm_time:'12:00',
           mon:'false',
@@ -70,82 +73,124 @@ class Alarm extends Component {
         this.modify_onClick = this.modify_onClick.bind(this);
         this.delete_onClick = this.delete_onClick.bind(this);
         this.alarm_onClick = this.alarm_onClick.bind(this);
+        this.ringmybell = this.ringmybell.bind(this);
+        this.logout = this.logout.bind(this);
       }
+
+      bell(){
+
+      var parameter_noti = {
+        title:"Alarm",
+        icon:"https://png.pngtree.com/element_our/20190530/ourlarge/pngtree-cartoon-clock-icon-download-image_1251420.jpg",
+        body:moment().format("HH:mm")+"입니다.",
+      };
+      if (!"Notification" in window) {
+        alert("This browser does not support desktop notification");
+      }
+      else if (Notification.permission === "granted") {
+        new Notification(parameter_noti.title,{
+            icon:parameter_noti.icon,
+            body:parameter_noti.body
+        });
+      }
+      else if (Notification.permission !== 'denied') {
+        Notification.requestPermission(function (permission) {
+          if(!('permission' in Notification)) {
+            Notification.permission = permission;
+          }
+          if (permission === "granted") {
+            new Notification(parameter_noti.title,{
+                icon:parameter_noti.icon,
+                body:parameter_noti.body,
+            });
+          }
+        });
+      }
+    }
+
+      ringmybell(){
+        const post ={
+        user_key: JSON.parse(localStorage.getItem("user")).key,
+        date : moment().format("HH:mm:ss"),
+        day : moment().format("ddd"),
+        }
+        fetch("http://localhost:3001/ringmybell", {
+            method: "post",
+            headers: {
+              "content-type": "application/json",
+            },
+            body: JSON.stringify(post),
+          })
+          .then(res => res.json())
+          .then(json =>{
+              if(json == true){
+                clearInterval(this.interval);
+                
+                this.bell() 
+                this.interval = setInterval(this.ringmybell,1000);
+              }else{
+              }
+          })  
+      }
+
+      logout(){
+          localStorage.clear();
+      }
+
       mon_onClick(e){
 
         if(this.state.mon==false){
             this.setState({mon:true});
-
-        }
-        else{
+        }else{
             this.setState({mon:false});
-
         }
      }
      tues_onClick(e){
 
         if(this.state.tues==false){
             this.setState({tues:true});
-
-        }
-        else{
+        }else{
             this.setState({tues:false});
-
         }
      }      
      wed_onClick(e){
 
         if(this.state.wed==false){
             this.setState({wed:true});
-
-        }
-        else{
+        } else{
             this.setState({wed:false});
-
         }
      }      
      thu_onClick(e){
 
         if(this.state.thu==false){
             this.setState({thu:true});
-
-        }
-        else{
+        }else{
             this.setState({thu:false});
-
         }
      }     
      fri_onClick(e){
 
         if(this.state.fri==false){
             this.setState({fri:true});
-
-        }
-        else{
+        }else{
             this.setState({fri:false});
-
         }
      }      
      sat_onClick(e){
 
         if(this.state.sat==false){
             this.setState({sat:true});
-
-        }
-        else{
+        }else{
             this.setState({sat:false});
-
         }
      }      
      sun_onClick(e){
 
         if(this.state.sun==false){
             this.setState({sun:true});
-
-        }
-        else{
+        }else{
             this.setState({sun:false});
-
         }
      }
       onChange(e) {
@@ -167,6 +212,7 @@ class Alarm extends Component {
           })
           .then(res => res.json())
           .then(res => {
+              console.log(res);
               this.setState({mon:res[0].mon, tues:res[0].tues,
                  wed:res[0].wed, thu:res[0].thu, fri:res[0].fri, sat:res[0].sat, 
                  sun:res[0].sun, alarm_time:res[0].time, alarm_key:res[0].alarm_pk})
@@ -179,6 +225,7 @@ class Alarm extends Component {
     modify_onClick(e){
         const post={
             alarm_key : this.state.alarm_key,
+            user_key : JSON.parse(localStorage.getItem("user")).key,
             alarm_time:this.state.alarm_time,
             mon:this.state.mon,
             tues:this.state.tues,
@@ -188,6 +235,19 @@ class Alarm extends Component {
             sat:this.state.sat,
             sun:this.state.sun,          
         }
+        if (this.state.mon == false && this.state.tues == false && this.state.wed == false 
+            && this.state.thu == false && this.state.fri == false && this.state.sat == false 
+            && this.state.sun == false) {
+          toast.error(
+            <div>
+              <div className="toast">
+                <Error />
+                <p>요일을 선택하세요</p>
+              </div>
+            </div>
+          );
+        } 
+        else{
         fetch("http://localhost:3001/alarm_modify", {
             method: "post",
             headers: {
@@ -222,7 +282,7 @@ class Alarm extends Component {
             }
            })
          } 
-          
+        }
     
     
     delete_onClick(e){
@@ -240,10 +300,9 @@ class Alarm extends Component {
         window.location.reload();
     }
     componentWillMount(){
-
+        this.interval = setInterval(this.ringmybell,1000);
         const post = {
-            user_key : 1,
-        //  user_key: JSON.parse(localStorage.getItem("user")).user_pk,
+          user_key: JSON.parse(localStorage.getItem("user")).key,
     }
 
         fetch("http://localhost:3001/alarm_list_count", {
@@ -276,14 +335,10 @@ class Alarm extends Component {
                     document.location.href = "/alarm/add"
                 }
           });
-
-        
-
-
       }
 
     render(){
-        const {alarm_onClick, delete_onClick, modify_onClick, onChange,mon_onClick, tues_onClick, wed_onClick, thu_onClick, fri_onClick, sat_onClick, sun_onClick } = this;
+        const {alarm_onClick, delete_onClick, modify_onClick, onChange,mon_onClick, tues_onClick, wed_onClick, thu_onClick, fri_onClick, sat_onClick, sun_onClick, logout } = this;
 
         return(
             <div className = "alarm">
@@ -291,11 +346,10 @@ class Alarm extends Component {
                     <Typography className = "alarm_title" variant= "h6" align= "left">
                             Alarm
                     </Typography>
-
-                    <Button className="Logout" >
+                    <Button className="Logout" href="/" onClick={logout}>
                         Logout
                     </Button>
-
+                    {console.log(moment("2020-11-28").format("hh:mm:ss ddd"))}
                     <span className ="week">
                         <Button className = "mon" variant="contained" onClick={mon_onClick} color={this.state.mon == false ? "gray" : "primary"}>
                             월
@@ -352,9 +406,7 @@ class Alarm extends Component {
                         type="time"
                         value={this.state.alarm_time}
                         className="clock"
-                        onChange={onChange}
-                        
-                        
+                        onChange={onChange}                       
                         />
                     </span>
 
